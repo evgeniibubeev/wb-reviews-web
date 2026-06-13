@@ -440,7 +440,9 @@
     document.getElementById(`tab-${tab}`).classList.add('active')
     const idx = ['reviews','questions','history','analysis'].indexOf(tab)
     document.querySelectorAll('.tab-btn')[idx]?.classList.add('active')
+    currentTab = tab
     if (tab === 'history') renderHistory()
+    if (tab === 'questions' && qCards.size === 0) loadQuestions()
   }
 
   // ── Star filter ────────────────────────────────────────────────────────────
@@ -775,9 +777,13 @@
   // ── Load all ───────────────────────────────────────────────────────────────
   async function loadAll() {
     const btn = document.getElementById('btn-refresh')
-    localStorage.removeItem('wb_reviews'); localStorage.removeItem('wb_questions')
+    // Помечаем кэш устаревшим (не удаляем — нужен как fallback)
+    try { const r = JSON.parse(localStorage.getItem('wb_reviews')||'null'); if (r) { r.ts = 0; localStorage.setItem('wb_reviews', JSON.stringify(r)) } } catch {}
+    try { const q = JSON.parse(localStorage.getItem('wb_questions')||'null'); if (q) { q.ts = 0; localStorage.setItem('wb_questions', JSON.stringify(q)) } } catch {}
     startCountdown(btn, '↻ Обновить')
-    await Promise.all([loadReviews(), loadQuestions()])
+    // Загружаем только текущую вкладку — один запрос к WB
+    if (currentTab === 'questions') await loadQuestions()
+    else await loadReviews()
   }
 
   // ── Analysis ───────────────────────────────────────────────────────────────
@@ -812,7 +818,7 @@
 
   // ── Init ───────────────────────────────────────────────────────────────────
   updateHistoryCount()
-  Promise.all([loadReviews(), loadQuestions()])
+  loadReviews()
 </script>
 </body>
 </html>
