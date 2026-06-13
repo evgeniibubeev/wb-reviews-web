@@ -289,10 +289,26 @@
 
   // ── Cache ──────────────────────────────────────────────────────────────────
   const CACHE_TTL = 65_000
-  function getCache(key) {
-    try { const { ts, data } = JSON.parse(sessionStorage.getItem(key) || 'null') || {}; return (Date.now() - ts < CACHE_TTL) ? data : null } catch { return null }
+
+  function getCache(key, ignoreTTL = false) {
+    try {
+      const { ts, data } = JSON.parse(localStorage.getItem(key) || 'null') || {}
+      if (!data) return null
+      if (ignoreTTL || Date.now() - ts < CACHE_TTL) return { data, ts, fresh: Date.now() - ts < CACHE_TTL }
+    } catch {}
+    return null
   }
-  function setCache(key, data) { try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })) } catch {} }
+
+  function setCache(key, data) {
+    try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })) } catch {}
+  }
+
+  function fmtAgo(ts) {
+    const min = Math.round((Date.now() - ts) / 60000)
+    if (min < 1) return 'только что'
+    if (min < 60) return `${min} мин назад`
+    return `${Math.round(min/60)} ч назад`
+  }
 
   let countdownTimer = null
   function startCountdown(btn, label) {
@@ -635,12 +651,34 @@
     if (!append) { rCards.clear(); reviewsOffset = 0; list.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка отзывов…</p></div>` }
 
     try {
-      let reviews = append ? null : getCache('wb_reviews')
-      if (!reviews) {
+      let reviews = null
+      let cacheInfo = null
+
+      if (!append) {
+        cacheInfo = getCache('wb_reviews', true)  // всегда читаем кэш
+        if (cacheInfo?.fresh) {
+          reviews = cacheInfo.data  // кэш свежий — используем
+        } else {
+          // Пробуем загрузить с WB
+          const res = await fetch(`${API.reviews}?skip=${reviewsOffset}`)
+          if (!res.ok) {
+            // Ошибка — показываем старый кэш если есть
+            if (cacheInfo?.data) {
+              reviews = cacheInfo.data
+              const ago = fmtAgo(cacheInfo.ts)
+              list.innerHTML = `<div style="background:#1a1d27;border:1px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#f59e0b">⚠️ Rate limit WB — показаны данные ${ago}. Новые загрузятся через минуту.</div>`
+            } else {
+              throw new Error((await res.json().catch(()=>({}))).error || `HTTP ${res.status}`)
+            }
+          } else {
+            reviews = await res.json()
+            setCache('wb_reviews', reviews)
+          }
+        }
+      } else {
         const res = await fetch(`${API.reviews}?skip=${reviewsOffset}`)
         if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || `HTTP ${res.status}`)
         reviews = await res.json()
-        if (!append) setCache('wb_reviews', reviews)
       }
 
       if (!append) list.innerHTML = ''
@@ -699,8 +737,20 @@
     qCards.clear()
     list.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка вопросов…</p></div>`
     try {
-      let questions = getCache('wb_questions')
-      if (!questions) { const res = await fetch(API.questions); if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error||`HTTP ${res.status}`); questions=await res.json(); setCache('wb_questions',questions) }
+      let questions = null
+      const qCache = getCache('wb_questions', true)
+      if (qCache?.fresh) {
+        questions = qCache.data
+      } else {
+        const res = await fetch(API.questions)
+        if (!res.ok) {
+          if (qCache?.data) { questions = qCache.data }
+          else throw new Error((await res.json().catch(()=>({}))).error||`HTTP ${res.status}`)
+        } else {
+          questions = await res.json()
+          setCache('wb_questions', questions)
+        }
+      }
       document.getElementById('cnt-questions').textContent = questions.length
       if (questions.length === 0) { list.innerHTML=`<div class="state-box"><div class="icon">✅</div><p>Неотвеченных вопросов нет</p></div>`; return }
       list.innerHTML = questions.map(q=>`<div class="card" id="qcard-${q.id}"></div>`).join('')
@@ -725,7 +775,7 @@
   // ── Load all ───────────────────────────────────────────────────────────────
   async function loadAll() {
     const btn = document.getElementById('btn-refresh')
-    sessionStorage.removeItem('wb_reviews'); sessionStorage.removeItem('wb_questions')
+    localStorage.removeItem('wb_reviews'); localStorage.removeItem('wb_questions')
     startCountdown(btn, '↻ Обновить')
     await Promise.all([loadReviews(), loadQuestions()])
   }
