@@ -18,11 +18,16 @@ export const handler = async (event) => {
     body: JSON.stringify({ id, text })
   })
 
+  if (res.status === 429) {
+    console.error('[reply] Rate limit 429 | id:', id)
+    return { statusCode: 429, body: JSON.stringify({ error: 'Rate limit WB — подождите минуту' }) }
+  }
+
   const ok = res.status === 204 || res.ok
   const body = res.status === 204 ? '{}' : await res.text()
 
   if (!ok) console.error('[reply] WB error', res.status, body, '| id:', id)
   else console.log('[reply] OK', res.status, '| id:', id)
 
-  return { statusCode: ok ? 200 : res.status, body: ok ? body : JSON.stringify({ error: body }) }
+  return { statusCode: ok ? 200 : res.status, body: ok ? body : JSON.stringify({ error: 'Ошибка WB: ' + res.status }) }
 }

@@ -562,21 +562,24 @@
       isR ? renderReviewCard(id) : renderQuestionCard(id)
       if (!auto) toast('Ответ отправлен на Wildberries')
 
-    } else if (res.status === 429 && !retry) {
-      // Rate limit — ждём 65 сек и повторяем автоматически
-      let sec = 65
-      const interval = setInterval(() => {
-        sec--
-        const el = document.getElementById(`card-${id}`) || document.getElementById(`qcard-${id}`)
-        const btn = el?.querySelector('.btn-green')
-        if (btn) btn.textContent = `↻ Повтор через ${sec}с`
-        if (sec <= 0) {
-          clearInterval(interval)
-          if (btn) btn.textContent = '✓ Отправить'
-          approve(id, type, auto, true)
-        }
-      }, 1000)
-      toast('Rate limit WB — повтор через 65 сек', 'error')
+    } else if (res.status === 429) {
+      if (retry) {
+        toast('WB всё ещё ограничивает запросы — попробуйте позже', 'error')
+      } else {
+        let sec = 65
+        const interval = setInterval(() => {
+          sec--
+          const el = document.getElementById(`card-${id}`) || document.getElementById(`qcard-${id}`)
+          const btn = el?.querySelector('.btn-green')
+          if (btn) btn.textContent = `↻ Повтор через ${sec}с`
+          if (sec <= 0) {
+            clearInterval(interval)
+            if (btn) btn.textContent = '✓ Отправить'
+            approve(id, type, auto, true)
+          }
+        }, 1000)
+        toast('Rate limit WB — повтор через 65 сек', 'error')
+      }
 
     } else {
       const err = await res.json().catch(() => ({}))
