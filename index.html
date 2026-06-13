@@ -526,16 +526,16 @@
   function applyTpl(sel, id) { const ta = document.getElementById(`ta-${id}`); if (ta && sel.value) { ta.value = sel.value; sel.value = '' } }
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  async function approve(id, type, auto = false) {
+  async function approve(id, type, auto = false, retry = false) {
     const isR = type === 'review'
     const c = isR ? rCards.get(id) : qCards.get(id)
     const endpoint = isR ? API.reply : API.replyQuestion
     const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, text: c.replyText }) })
+
     if (res.ok) {
       c.state = 'done'; c.auto = auto
       addToHistory({
-        type,
-        auto,
+        type, auto,
         product: isR ? (c.review.productDetails?.productName || '') : (c.q.productDetails?.productName || ''),
         stars: isR ? (c.review.productValuation || 0) : 0,
         reviewText: isR ? (c.review.text || '') : (c.q.text || ''),
@@ -543,6 +543,23 @@
       })
       isR ? renderReviewCard(id) : renderQuestionCard(id)
       if (!auto) toast('Ответ отправлен на Wildberries')
+
+    } else if (res.status === 429 && !retry) {
+      // Rate limit — ждём 65 сек и повторяем автоматически
+      let sec = 65
+      const interval = setInterval(() => {
+        sec--
+        const el = document.getElementById(`card-${id}`) || document.getElementById(`qcard-${id}`)
+        const btn = el?.querySelector('.btn-green')
+        if (btn) btn.textContent = `↻ Повтор через ${sec}с`
+        if (sec <= 0) {
+          clearInterval(interval)
+          if (btn) btn.textContent = '✓ Отправить'
+          approve(id, type, auto, true)
+        }
+      }, 1000)
+      toast('Rate limit WB — повтор через 65 сек', 'error')
+
     } else {
       const err = await res.json().catch(() => ({}))
       toast(err.error || 'Ошибка отправки', 'error')
