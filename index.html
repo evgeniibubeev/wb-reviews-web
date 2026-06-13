@@ -2,7 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WB Отзывы">
+  <link rel="manifest" href="/manifest.json">
   <title>WB Отзывы</title>
   <style>
     :root {
@@ -22,160 +27,210 @@
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
     /* ── Header ── */
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
-    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; flex-shrink: 0; }
     .logo-badge { background: #cb11ab; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 5px; }
-    .tabs { display: flex; gap: 4px; flex: 1; }
-    .tab-btn { background: none; border: none; color: var(--muted); font-size: 14px; font-weight: 500; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+    .tabs { display: flex; gap: 3px; flex: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { background: none; border: none; color: var(--muted); font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
     .tab-btn:hover { color: var(--text); background: var(--border); }
     .tab-btn.active { background: var(--purple); color: #fff; }
-    .tab-btn .count { font-size: 11px; background: rgba(255,255,255,0.2); border-radius: 10px; padding: 1px 6px; margin-left: 4px; }
-    .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .tab-btn .count { font-size: 10px; background: rgba(255,255,255,0.2); border-radius: 10px; padding: 1px 5px; margin-left: 3px; }
+    .header-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: auto; }
 
     /* ── Buttons ── */
-    button { border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 8px; padding: 7px 13px; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+    button { border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 8px; padding: 8px 13px; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
     button:hover:not(:disabled) { opacity: 0.85; }
     button:active:not(:disabled) { transform: scale(0.97); }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-ghost  { background: var(--border); color: var(--text); }
     .btn-green  { background: var(--green);  color: #fff; }
     .btn-blue   { background: var(--blue);   color: #fff; }
-    .btn-red    { background: var(--red);    color: #fff; }
     .btn-muted  { background: #2a2d3a; color: var(--muted); }
     .btn-purple { background: var(--purple); color: #fff; }
+    .btn-yellow { background: var(--yellow); color: #000; }
 
     /* ── Main ── */
-    main { max-width: 820px; margin: 0 auto; padding: 20px 16px; }
+    main { max-width: 820px; margin: 0 auto; padding: 16px; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
     /* ── Toolbar ── */
-    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .star-filters { display: flex; gap: 4px; flex-wrap: wrap; }
-    .star-filter { background: var(--border); color: var(--muted); font-size: 12px; padding: 5px 10px; border-radius: 20px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+    .star-filter { background: var(--border); color: var(--muted); font-size: 12px; padding: 5px 10px; border-radius: 20px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
     .star-filter:hover { color: var(--text); }
-    .star-filter.active { background: var(--yellow); color: #000; border-color: var(--yellow); font-weight: 600; }
-    .star-filter[data-f="0"].active { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .star-filter.active { background: var(--yellow); color: #000; font-weight: 600; }
+    .star-filter[data-f="0"].active { background: var(--purple); color: #fff; }
+    .auto-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer; user-select: none; }
+    .auto-toggle input { cursor: pointer; accent-color: var(--purple); width: 14px; height: 14px; }
 
-    /* ── State boxes ── */
-    .state-box { text-align: center; padding: 60px 24px; color: var(--muted); }
-    .state-box .icon { font-size: 40px; margin-bottom: 12px; }
-    .state-box p { font-size: 15px; }
-    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+    /* ── State ── */
+    .state-box { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .state-box .icon { font-size: 36px; margin-bottom: 10px; }
+    .spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Cards ── */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; transition: opacity 0.2s; }
+    /* ── Card ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
     .card.done { opacity: 0.35; pointer-events: none; }
-    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .card-meta { display: flex; flex-direction: column; gap: 3px; }
-    .product-name { font-weight: 600; font-size: 15px; }
+    .card.auto-sent { border-color: var(--green); opacity: 0.6; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .card-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .product-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-date { font-size: 12px; color: var(--muted); }
-    .stars { display: flex; gap: 2px; font-size: 17px; flex-shrink: 0; }
+    .stars { display: flex; gap: 2px; font-size: 16px; flex-shrink: 0; }
     .star-filled { color: var(--yellow); }
     .star-empty  { color: var(--border); }
-    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 6px; }
-    .review-text { background: #12141c; border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; margin-bottom: 12px; }
-    .reply-block { margin-bottom: 12px; }
-    .reply-text { background: #12141c; border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; min-height: 48px; }
-    .reply-text.generating { color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 10px; }
-    .reply-text.generating::before { content: ''; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
-    .reply-textarea { width: 100%; background: #12141c; border: 1px solid var(--blue); border-radius: 8px; padding: 11px 13px; color: var(--text); font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical; min-height: 90px; outline: none; }
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); margin-bottom: 5px; }
+    .review-text { background: #12141c; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; word-break: break-word; }
+    .reply-block { margin-bottom: 10px; }
+    .reply-text { background: #12141c; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; min-height: 44px; word-break: break-word; }
+    .reply-text.generating { color: var(--muted); font-style: italic; display: flex; align-items: center; gap: 8px; }
+    .reply-text.generating::before { content: ''; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    .reply-textarea { width: 100%; background: #12141c; border: 1px solid var(--blue); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical; min-height: 80px; outline: none; }
     .reply-textarea:focus { border-color: var(--purple); }
-    .card-actions { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .card-actions button { flex: 1; min-width: 100px; }
     .done-label { color: var(--green); font-size: 13px; }
-
-    /* ── Templates picker inside card ── */
-    .tpl-picker { margin-bottom: 8px; }
+    .auto-badge { background: var(--green); color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+    .tpl-picker { margin-bottom: 7px; }
     .tpl-picker select { background: #12141c; border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 7px 10px; font-size: 13px; font-family: inherit; width: 100%; cursor: pointer; outline: none; }
 
+    /* ── Load more ── */
+    .load-more { text-align: center; padding: 16px 0; }
+
+    /* ── History ── */
+    .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+    .history-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .history-product { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .history-date { font-size: 12px; color: var(--muted); }
+    .history-review { color: var(--muted); font-size: 13px; margin-bottom: 6px; font-style: italic; }
+    .history-reply { font-size: 13px; color: var(--text); }
+    .history-toolbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
     /* ── Templates Modal ── */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; display: none; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 50; display: none; }
     .modal-overlay.open { display: block; }
-    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: min(560px, 95vw); max-height: 80vh; overflow-y: auto; z-index: 51; display: none; }
+    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: min(540px, 95vw); max-height: 85vh; overflow-y: auto; z-index: 51; display: none; }
     .modal.open { display: block; }
-    .modal h2 { font-size: 17px; margin-bottom: 18px; }
-    .tpl-item { background: #12141c; border: 1px solid var(--border); border-radius: 10px; padding: 13px; margin-bottom: 10px; }
-    .tpl-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 8px; }
-    .tpl-name { font-weight: 600; }
-    .tpl-stars-badge { font-size: 11px; color: var(--muted); background: var(--border); padding: 2px 8px; border-radius: 10px; }
-    .tpl-text { color: var(--muted); font-size: 13px; margin-bottom: 8px; white-space: pre-wrap; }
-    .tpl-form { background: #12141c; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 14px; }
-    .tpl-form h3 { font-size: 14px; margin-bottom: 12px; color: var(--muted); }
-    .form-row { margin-bottom: 10px; }
-    .form-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .modal-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .modal-title h2 { font-size: 16px; }
+    .tpl-item { background: #12141c; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+    .tpl-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; gap: 8px; }
+    .tpl-name { font-weight: 600; font-size: 13px; }
+    .tpl-stars-badge { font-size: 11px; color: var(--muted); background: var(--border); padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+    .tpl-text { color: var(--muted); font-size: 13px; }
+    .tpl-form { background: #12141c; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 12px; }
+    .tpl-form h3 { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .form-row { margin-bottom: 9px; }
+    .form-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
     .form-row input, .form-row select, .form-row textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 8px 10px; font-family: inherit; font-size: 13px; outline: none; }
-    .form-row textarea { resize: vertical; min-height: 70px; }
+    .form-row textarea { resize: vertical; min-height: 65px; }
     .form-row input:focus, .form-row textarea:focus { border-color: var(--purple); }
 
-    /* ── Analysis Tab ── */
-    .analysis-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
-    .analysis-form h2 { font-size: 16px; margin-bottom: 6px; }
-    .analysis-form p { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
-    .analysis-input-row { display: flex; gap: 10px; }
-    .analysis-input-row input { flex: 1; background: #12141c; border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 13px; font-family: inherit; font-size: 14px; outline: none; }
+    /* ── Analysis ── */
+    .analysis-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+    .analysis-form h2 { font-size: 15px; margin-bottom: 5px; }
+    .analysis-form p { color: var(--muted); font-size: 13px; margin-bottom: 13px; }
+    .analysis-input-row { display: flex; gap: 8px; }
+    .analysis-input-row input { flex: 1; background: #12141c; border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-family: inherit; font-size: 14px; outline: none; min-width: 0; }
     .analysis-input-row input:focus { border-color: var(--purple); }
-    .analysis-result { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: none; }
+    .analysis-result { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: none; }
     .analysis-result.show { display: block; }
-    .analysis-meta { font-size: 13px; color: var(--muted); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .analysis-body h2 { font-size: 15px; font-weight: 600; color: var(--purple); margin: 16px 0 8px; }
+    .analysis-meta { font-size: 13px; color: var(--muted); margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .analysis-body h2 { font-size: 14px; font-weight: 600; color: var(--purple); margin: 14px 0 7px; }
     .analysis-body h2:first-child { margin-top: 0; }
-    .analysis-body ul { padding-left: 18px; }
-    .analysis-body li { margin-bottom: 5px; color: var(--text); }
+    .analysis-body ul { padding-left: 16px; }
+    .analysis-body li { margin-bottom: 4px; }
 
     /* ── Toast ── */
-    #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 7px; z-index: 100; }
-    .toast { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: slideIn 0.2s ease; }
+    #toast-container { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 100; max-width: calc(100vw - 32px); }
+    .toast { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 13px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: slideIn 0.2s ease; }
     .toast.success { border-color: var(--green); }
     .toast.error   { border-color: var(--red); }
     @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      header { padding: 8px 12px; gap: 8px; }
+      .logo-text { display: none; }
+      .header-actions .btn-ghost:not(#btn-refresh) { padding: 7px 10px; font-size: 12px; }
+      main { padding: 12px; }
+      .card { padding: 13px; }
+      .card-actions button { min-width: 80px; font-size: 12px; padding: 7px 10px; }
+      .analysis-input-row { flex-direction: column; }
+      .modal { padding: 16px; }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><span class="logo-badge">WB</span> Управление отзывами</div>
+  <div class="logo">
+    <span class="logo-badge">WB</span>
+    <span class="logo-text">Управление отзывами</span>
+  </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('reviews')">Отзывы <span class="count" id="cnt-reviews">—</span></button>
     <button class="tab-btn" onclick="switchTab('questions')">Вопросы <span class="count" id="cnt-questions">—</span></button>
+    <button class="tab-btn" onclick="switchTab('history')">История <span class="count" id="cnt-history">—</span></button>
     <button class="tab-btn" onclick="switchTab('analysis')">Анализ</button>
   </div>
   <div class="header-actions">
-    <button class="btn-ghost" id="btn-style" onclick="loadStyles()">🎨 Стиль</button>
-    <button class="btn-ghost" onclick="openTemplates()">📋 Шаблоны</button>
+    <button class="btn-ghost" id="btn-style" onclick="loadStyles()">🎨</button>
+    <button class="btn-ghost" onclick="openTemplates()">📋</button>
     <button class="btn-ghost" id="btn-refresh" onclick="loadAll()">↻ Обновить</button>
   </div>
 </header>
 
 <main>
-  <!-- Reviews Tab -->
+  <!-- Reviews -->
   <div id="tab-reviews" class="tab-content active">
     <div class="toolbar">
-      <div class="star-filters">
-        <span class="star-filter active" data-f="0" onclick="setFilter(0)">Все</span>
-        <span class="star-filter" data-f="1" onclick="setFilter(1)">★</span>
-        <span class="star-filter" data-f="2" onclick="setFilter(2)">★★</span>
-        <span class="star-filter" data-f="3" onclick="setFilter(3)">★★★</span>
-        <span class="star-filter" data-f="4" onclick="setFilter(4)">★★★★</span>
-        <span class="star-filter" data-f="5" onclick="setFilter(5)">★★★★★</span>
+      <div class="toolbar-left">
+        <div class="star-filters">
+          <span class="star-filter active" data-f="0" onclick="setFilter(0)">Все</span>
+          <span class="star-filter" data-f="1" onclick="setFilter(1)">★</span>
+          <span class="star-filter" data-f="2" onclick="setFilter(2)">★★</span>
+          <span class="star-filter" data-f="3" onclick="setFilter(3)">★★★</span>
+          <span class="star-filter" data-f="4" onclick="setFilter(4)">★★★★</span>
+          <span class="star-filter" data-f="5" onclick="setFilter(5)">★★★★★</span>
+        </div>
+        <label class="auto-toggle">
+          <input type="checkbox" id="auto-reply-toggle" checked>
+          Автоответ без текста
+        </label>
       </div>
-      <button class="btn-green" id="btn-approve-all" onclick="approveAll()" style="display:none">✓ Отправить все одобренные</button>
+      <button class="btn-green" id="btn-approve-all" onclick="approveAll()" style="display:none">✓ Отправить все</button>
     </div>
     <div id="reviews-list"><div class="state-box"><div class="spinner"></div><p>Загрузка отзывов…</p></div></div>
+    <div class="load-more" id="load-more" style="display:none">
+      <button class="btn-ghost" id="btn-load-more" onclick="loadMoreReviews()">Загрузить ещё</button>
+    </div>
   </div>
 
-  <!-- Questions Tab -->
+  <!-- Questions -->
   <div id="tab-questions" class="tab-content">
     <div id="questions-list"><div class="state-box"><div class="spinner"></div><p>Загрузка вопросов…</p></div></div>
   </div>
 
-  <!-- Analysis Tab -->
+  <!-- History -->
+  <div id="tab-history" class="tab-content">
+    <div class="history-toolbar">
+      <button class="btn-muted" onclick="clearHistory()">Очистить историю</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- Analysis -->
   <div id="tab-analysis" class="tab-content">
     <div class="analysis-form">
       <h2>Анализ отзывов</h2>
-      <p>Введите артикул WB для анализа конкретного товара, или оставьте поле пустым для анализа последних 100 отзывов магазина.</p>
+      <p>Введите артикул WB для анализа конкретного товара, или оставьте пустым для анализа последних 100 отзывов магазина.</p>
       <div class="analysis-input-row">
-        <input type="text" id="analysis-nm" placeholder="Артикул товара (nmId), например: 12345678" inputmode="numeric">
+        <input type="text" id="analysis-nm" placeholder="Артикул (nmId), например: 12345678" inputmode="numeric">
         <button class="btn-purple" id="btn-analyze" onclick="runAnalysis()">Анализировать</button>
       </div>
     </div>
@@ -189,9 +244,9 @@
 <!-- Templates Modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeTemplates()"></div>
 <div class="modal" id="modal-templates">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <h2 style="margin:0">📋 Шаблоны ответов</h2>
-    <button class="btn-ghost" onclick="closeTemplates()" style="padding:5px 10px">✕</button>
+  <div class="modal-title">
+    <h2>📋 Шаблоны ответов</h2>
+    <button class="btn-ghost" onclick="closeTemplates()" style="padding:5px 9px">✕</button>
   </div>
   <div id="tpl-list"></div>
   <div class="tpl-form">
@@ -226,63 +281,93 @@
   }
 
   // ── State ──────────────────────────────────────────────────────────────────
-  const rCards = new Map()  // review cards
-  const qCards = new Map()  // question cards
+  const rCards = new Map()
+  const qCards = new Map()
   let styleExamples = []
   let starFilter = 0
-  let currentTab = 'reviews'
+  let reviewsOffset = 0
 
   // ── Cache ──────────────────────────────────────────────────────────────────
-  const CACHE_KEY = 'wb_reviews_cache'
-  const CACHE_Q   = 'wb_questions_cache'
   const CACHE_TTL = 65_000
-
   function getCache(key) {
-    try {
-      const raw = sessionStorage.getItem(key)
-      if (!raw) return null
-      const { ts, data } = JSON.parse(raw)
-      if (Date.now() - ts < CACHE_TTL) return data
-    } catch {}
-    return null
+    try { const { ts, data } = JSON.parse(sessionStorage.getItem(key) || 'null') || {}; return (Date.now() - ts < CACHE_TTL) ? data : null } catch { return null }
   }
+  function setCache(key, data) { try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })) } catch {} }
 
-  function setCache(key, data) {
-    try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })) } catch {}
-  }
-
-  let refreshTimer = null
+  let countdownTimer = null
   function startCountdown(btn, label) {
-    clearInterval(refreshTimer)
+    clearInterval(countdownTimer)
     let sec = Math.ceil(CACHE_TTL / 1000)
     btn.disabled = true
-    refreshTimer = setInterval(() => {
+    countdownTimer = setInterval(() => {
       sec--
-      if (sec <= 0) { clearInterval(refreshTimer); btn.disabled = false; btn.textContent = label }
+      if (sec <= 0) { clearInterval(countdownTimer); btn.disabled = false; btn.textContent = label }
       else btn.textContent = `${label} (${sec}с)`
     }, 1000)
   }
 
-  // ── Templates ─────────────────────────────────────────────────────────────
-  const DEFAULT_TEMPLATES = [
-    { id: 't1', name: 'Спасибо за 5⭐', stars: 5, text: 'Благодарим Вас за отличный отзыв! Очень рады, что товар понравился. Ждём Вас снова!' },
-    { id: 't2', name: 'Сожаление 1-2⭐', stars: 0, text: 'Приносим свои извинения за доставленные неудобства. Пожалуйста, напишите нам в чат поддержки — мы обязательно разберёмся и решим вопрос.' },
-    { id: 't3', name: 'Учтём пожелания', stars: 3, text: 'Спасибо за обратную связь! Учтём Ваши пожелания при работе над товаром. Надеемся на повторную покупку!' },
-  ]
+  // ── History ────────────────────────────────────────────────────────────────
+  const HIST_KEY = 'wb_reply_history'
 
-  function getTemplates() {
-    try {
-      const raw = localStorage.getItem('wb_templates')
-      return raw ? JSON.parse(raw) : [...DEFAULT_TEMPLATES]
-    } catch { return [...DEFAULT_TEMPLATES] }
+  function getHistory() { try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]') } catch { return [] } }
+
+  function addToHistory(item) {
+    const h = getHistory()
+    h.unshift({ ...item, ts: Date.now() })
+    if (h.length > 500) h.splice(500)
+    localStorage.setItem(HIST_KEY, JSON.stringify(h))
+    updateHistoryCount()
   }
 
-  function saveTemplates(arr) {
-    localStorage.setItem('wb_templates', JSON.stringify(arr))
+  function clearHistory() {
+    if (!confirm('Очистить всю историю ответов?')) return
+    localStorage.removeItem(HIST_KEY)
+    renderHistory()
+    updateHistoryCount()
+  }
+
+  function updateHistoryCount() {
+    document.getElementById('cnt-history').textContent = getHistory().length
+  }
+
+  function renderHistory() {
+    const h = getHistory()
+    const el = document.getElementById('history-list')
+    if (h.length === 0) {
+      el.innerHTML = `<div class="state-box"><div class="icon">📭</div><p>История пуста</p></div>`
+      return
+    }
+    el.innerHTML = h.map(item => `
+      <div class="history-item">
+        <div class="history-header">
+          <span class="history-product">${escHtml(item.product || '—')}</span>
+          ${item.stars ? `<div class="stars" style="font-size:13px">${starsHtml(item.stars)}</div>` : '<span style="font-size:16px">❓</span>'}
+          ${item.auto ? '<span class="auto-badge">Авто</span>' : ''}
+          <span class="history-date">${fmtDatetime(item.ts)}</span>
+        </div>
+        ${item.reviewText ? `<div class="history-review">"${escHtml(item.reviewText.slice(0, 120))}${item.reviewText.length > 120 ? '…' : ''}"</div>` : ''}
+        <div class="history-reply">${escHtml(item.replyText)}</div>
+      </div>
+    `).join('')
+  }
+
+  // ── Templates ─────────────────────────────────────────────────────────────
+  const DEFAULT_TEMPLATES = [
+    { id: 't1', name: 'Спасибо за 5⭐', stars: 5, text: 'Благодарим Вас за отличный отзыв! Очень рады, что товар понравился. Будем рады видеть Вас снова!' },
+    { id: 't2', name: 'Сожаление 1–2⭐', stars: 0, text: 'Приносим свои извинения за доставленные неудобства. Пожалуйста, напишите нам в чат поддержки — обязательно разберёмся.' },
+    { id: 't3', name: 'Учтём 3⭐', stars: 3, text: 'Спасибо за обратную связь! Учтём Ваши пожелания. Надеемся на повторную покупку!' },
+  ]
+
+  function getTemplates() { try { return JSON.parse(localStorage.getItem('wb_templates') || 'null') || [...DEFAULT_TEMPLATES] } catch { return [...DEFAULT_TEMPLATES] } }
+  function saveTemplates(arr) { localStorage.setItem('wb_templates', JSON.stringify(arr)) }
+
+  function getBestTemplate(stars) {
+    const arr = getTemplates()
+    return arr.find(t => t.stars === stars) || arr.find(t => t.stars === 0) || null
   }
 
   function addTemplate() {
-    const name  = document.getElementById('tpl-name').value.trim()
+    const name = document.getElementById('tpl-name').value.trim()
     const stars = parseInt(document.getElementById('tpl-stars').value)
     const text  = document.getElementById('tpl-text').value.trim()
     if (!name || !text) return toast('Заполни название и текст', 'error')
@@ -295,48 +380,34 @@
     toast('Шаблон добавлен')
   }
 
-  function deleteTemplate(id) {
-    saveTemplates(getTemplates().filter(t => t.id !== id))
-    renderTemplatesList()
-  }
+  function deleteTemplate(id) { saveTemplates(getTemplates().filter(t => t.id !== id)); renderTemplatesList() }
 
   function renderTemplatesList() {
-    const arr  = getTemplates()
-    const list = document.getElementById('tpl-list')
-    if (arr.length === 0) { list.innerHTML = '<p style="color:var(--muted);margin-bottom:12px">Нет шаблонов</p>'; return }
-    list.innerHTML = arr.map(t => `
-      <div class="tpl-item">
-        <div class="tpl-item-header">
-          <span class="tpl-name">${escHtml(t.name)}</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            <span class="tpl-stars-badge">${t.stars ? t.stars + ' ⭐' : 'Все'}</span>
-            <button class="btn-muted" style="padding:3px 8px;font-size:12px" onclick="deleteTemplate('${t.id}')">✕</button>
+    const arr = getTemplates()
+    document.getElementById('tpl-list').innerHTML = arr.length === 0
+      ? '<p style="color:var(--muted);margin-bottom:12px">Нет шаблонов</p>'
+      : arr.map(t => `
+        <div class="tpl-item">
+          <div class="tpl-item-header">
+            <span class="tpl-name">${escHtml(t.name)}</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="tpl-stars-badge">${t.stars ? t.stars + '⭐' : 'Все'}</span>
+              <button class="btn-muted" style="padding:3px 8px;font-size:11px" onclick="deleteTemplate('${t.id}')">✕</button>
+            </div>
           </div>
-        </div>
-        <div class="tpl-text">${escHtml(t.text)}</div>
-      </div>
-    `).join('')
+          <div class="tpl-text">${escHtml(t.text)}</div>
+        </div>`).join('')
   }
 
   function openTemplates()  { document.getElementById('modal-overlay').classList.add('open'); document.getElementById('modal-templates').classList.add('open'); renderTemplatesList() }
   function closeTemplates() { document.getElementById('modal-overlay').classList.remove('open'); document.getElementById('modal-templates').classList.remove('open') }
 
-  // ── Utilities ─────────────────────────────────────────────────────────────
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
-
-  function escHtml(s = '') {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  }
-
-  function starsHtml(n) {
-    return Array.from({ length: 5 }, (_, i) =>
-      `<span class="${i < n ? 'star-filled' : 'star-empty'}">★</span>`
-    ).join('')
-  }
-
-  function fmtDate(iso) {
-    return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
-  }
+  // ── Utils ──────────────────────────────────────────────────────────────────
+  const sleep = ms => new Promise(r => setTimeout(r, ms))
+  const escHtml = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  const starsHtml = n => Array.from({length:5},(_,i) => `<span class="${i<n?'star-filled':'star-empty'}">★</span>`).join('')
+  const fmtDate = iso => new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'})
+  const fmtDatetime = ts => new Date(ts).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
 
   function toast(msg, type = 'success') {
     const el = document.createElement('div')
@@ -348,85 +419,67 @@
 
   // ── Tab switching ──────────────────────────────────────────────────────────
   function switchTab(tab) {
-    currentTab = tab
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'))
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'))
     document.getElementById(`tab-${tab}`).classList.add('active')
-    document.querySelectorAll('.tab-btn')[['reviews','questions','analysis'].indexOf(tab)].classList.add('active')
+    const idx = ['reviews','questions','history','analysis'].indexOf(tab)
+    document.querySelectorAll('.tab-btn')[idx]?.classList.add('active')
+    if (tab === 'history') renderHistory()
   }
 
   // ── Star filter ────────────────────────────────────────────────────────────
   function setFilter(n) {
     starFilter = n
-    document.querySelectorAll('.star-filter').forEach(el => {
-      el.classList.toggle('active', parseInt(el.dataset.f) === n)
-    })
+    document.querySelectorAll('.star-filter').forEach(el => el.classList.toggle('active', parseInt(el.dataset.f) === n))
     for (const [id, c] of rCards) {
       const el = document.getElementById(`card-${id}`)
-      if (!el) continue
-      const s = c.review.productValuation || 0
-      el.style.display = (n === 0 || s === n) ? '' : 'none'
+      if (el) el.style.display = (n === 0 || (c.review.productValuation || 0) === n) ? '' : 'none'
     }
   }
 
   function updateFilterCounts() {
     const counts = {}
-    for (const [, c] of rCards) {
-      const s = c.review.productValuation || 0
-      counts[s] = (counts[s] || 0) + 1
-    }
-    const total = rCards.size
-    document.querySelector('[data-f="0"]').textContent = `Все (${total})`
+    for (const [,c] of rCards) { const s = c.review.productValuation || 0; counts[s] = (counts[s]||0)+1 }
+    document.querySelector('[data-f="0"]').textContent = `Все (${rCards.size})`
     for (let i = 1; i <= 5; i++) {
       const btn = document.querySelector(`[data-f="${i}"]`)
       const cnt = counts[i] || 0
       btn.textContent = '★'.repeat(i) + (cnt ? ` (${cnt})` : '')
       btn.style.display = cnt ? '' : 'none'
     }
+    document.getElementById('cnt-reviews').textContent = rCards.size
   }
 
   function updateApproveAllBtn() {
     const ready = [...rCards.values()].filter(c => c.state === 'ready').length
     const btn = document.getElementById('btn-approve-all')
     btn.style.display = ready > 0 ? '' : 'none'
-    btn.textContent = `✓ Отправить все одобренные (${ready})`
+    btn.textContent = `✓ Отправить все (${ready})`
   }
 
   // ── Render review card ─────────────────────────────────────────────────────
   function renderReviewCard(id) {
-    const c   = rCards.get(id)
-    const el  = document.getElementById(`card-${id}`)
+    const c = rCards.get(id), el = document.getElementById(`card-${id}`)
     if (!el) return
-
     const product = c.review.productDetails?.productName || 'Неизвестный товар'
-    const text    = c.review.text || '(без текста)'
-    const n       = c.review.productValuation || 0
+    const text = c.review.text || '(без текста)'
+    const n = c.review.productValuation || 0
 
     let replyHtml = ''
-    if (c.state === 'generating') {
-      replyHtml = `<div class="reply-text generating">Генерирую ответ…</div>`
-    } else if (c.state === 'editing') {
-      const templates = getTemplates().filter(t => t.stars === 0 || t.stars === n)
-      const tplOptions = templates.length
-        ? `<div class="tpl-picker"><select onchange="applyTpl(this,'${id}')"><option value="">— выбрать шаблон —</option>${templates.map(t => `<option value="${escHtml(t.text)}">${escHtml(t.name)}</option>`).join('')}</select></div>`
-        : ''
-      replyHtml = tplOptions + `<textarea class="reply-textarea" id="ta-${id}">${escHtml(c.replyText)}</textarea>`
-    } else {
-      replyHtml = `<div class="reply-text">${escHtml(c.replyText)}</div>`
-    }
+    if (c.state === 'generating') replyHtml = `<div class="reply-text generating">Генерирую ответ…</div>`
+    else if (c.state === 'editing') {
+      const tpls = getTemplates().filter(t => t.stars === 0 || t.stars === n)
+      const picker = tpls.length ? `<div class="tpl-picker"><select onchange="applyTpl(this,'${id}')"><option value="">— шаблон —</option>${tpls.map(t=>`<option value="${escHtml(t.text)}">${escHtml(t.name)}</option>`).join('')}</select></div>` : ''
+      replyHtml = picker + `<textarea class="reply-textarea" id="ta-${id}">${escHtml(c.replyText)}</textarea>`
+    } else replyHtml = `<div class="reply-text">${escHtml(c.replyText)}</div>`
 
     let actionsHtml = ''
-    if (c.state === 'done') {
-      actionsHtml = `<span class="done-label">✓ Ответ отправлен</span>`
-    } else if (c.state === 'generating') {
-      actionsHtml = `<button class="btn-green" disabled>✓ Отправить</button><button class="btn-blue" disabled>✏ Редактировать</button><button class="btn-muted" disabled>✕ Пропустить</button>`
-    } else if (c.state === 'editing') {
-      actionsHtml = `<button class="btn-green" onclick="saveEdit('${id}','review')">✓ Отправить</button><button class="btn-ghost" onclick="cancelEdit('${id}','review')">Отмена</button><button class="btn-muted" onclick="skip('${id}','review')">✕ Пропустить</button>`
-    } else {
-      actionsHtml = `<button class="btn-green" onclick="approve('${id}','review')">✓ Отправить</button><button class="btn-blue" onclick="startEdit('${id}','review')">✏ Редактировать</button><button class="btn-muted" onclick="skip('${id}','review')">✕ Пропустить</button>`
-    }
+    if (c.state === 'done') actionsHtml = `<span class="done-label">✓ Отправлен${c.auto ? ' <span class="auto-badge">Авто</span>' : ''}</span>`
+    else if (c.state === 'generating') actionsHtml = `<button class="btn-green" disabled>✓ Отправить</button><button class="btn-blue" disabled>✏ Ред.</button><button class="btn-muted" disabled>✕</button>`
+    else if (c.state === 'editing') actionsHtml = `<button class="btn-green" onclick="saveEdit('${id}','review')">✓ Отправить</button><button class="btn-ghost" onclick="cancelEdit('${id}','review')">Отмена</button><button class="btn-muted" onclick="skip('${id}','review')">✕</button>`
+    else actionsHtml = `<button class="btn-green" onclick="approve('${id}','review')">✓ Отправить</button><button class="btn-blue" onclick="startEdit('${id}','review')">✏ Ред.</button><button class="btn-muted" onclick="skip('${id}','review')">✕</button>`
 
-    el.className = `card${c.state === 'done' ? ' done' : ''}`
+    el.className = `card${c.state === 'done' ? (c.auto ? ' auto-sent' : ' done') : ''}`
     el.style.display = (starFilter === 0 || n === starFilter) ? '' : 'none'
     el.innerHTML = `
       <div class="card-header">
@@ -436,76 +489,60 @@
       <div class="section-label">Отзыв</div>
       <div class="review-text">${escHtml(text)}</div>
       <div class="reply-block"><div class="section-label">Предложенный ответ</div>${replyHtml}</div>
-      <div class="card-actions">${actionsHtml}</div>
-    `
+      <div class="card-actions">${actionsHtml}</div>`
     updateApproveAllBtn()
   }
 
   // ── Render question card ───────────────────────────────────────────────────
   function renderQuestionCard(id) {
-    const c  = qCards.get(id)
-    const el = document.getElementById(`qcard-${id}`)
+    const c = qCards.get(id), el = document.getElementById(`qcard-${id}`)
     if (!el) return
-
     const product = c.q.productDetails?.productName || 'Неизвестный товар'
-    const text    = c.q.text || '(без текста)'
+    const text = c.q.text || '(без текста)'
 
     let replyHtml = ''
-    if (c.state === 'generating') {
-      replyHtml = `<div class="reply-text generating">Генерирую ответ…</div>`
-    } else if (c.state === 'editing') {
-      replyHtml = `<textarea class="reply-textarea" id="qta-${id}">${escHtml(c.replyText)}</textarea>`
-    } else {
-      replyHtml = `<div class="reply-text">${escHtml(c.replyText)}</div>`
-    }
+    if (c.state === 'generating') replyHtml = `<div class="reply-text generating">Генерирую ответ…</div>`
+    else if (c.state === 'editing') replyHtml = `<textarea class="reply-textarea" id="qta-${id}">${escHtml(c.replyText)}</textarea>`
+    else replyHtml = `<div class="reply-text">${escHtml(c.replyText)}</div>`
 
     let actionsHtml = ''
-    if (c.state === 'done') {
-      actionsHtml = `<span class="done-label">✓ Ответ отправлен</span>`
-    } else if (c.state === 'generating') {
-      actionsHtml = `<button class="btn-green" disabled>✓ Отправить</button><button class="btn-blue" disabled>✏ Редактировать</button><button class="btn-muted" disabled>✕ Пропустить</button>`
-    } else if (c.state === 'editing') {
-      actionsHtml = `<button class="btn-green" onclick="saveEdit('${id}','question')">✓ Отправить</button><button class="btn-ghost" onclick="cancelEdit('${id}','question')">Отмена</button><button class="btn-muted" onclick="skip('${id}','question')">✕ Пропустить</button>`
-    } else {
-      actionsHtml = `<button class="btn-green" onclick="approve('${id}','question')">✓ Отправить</button><button class="btn-blue" onclick="startEdit('${id}','question')">✏ Редактировать</button><button class="btn-muted" onclick="skip('${id}','question')">✕ Пропустить</button>`
-    }
+    if (c.state === 'done') actionsHtml = `<span class="done-label">✓ Ответ отправлен</span>`
+    else if (c.state === 'generating') actionsHtml = `<button class="btn-green" disabled>✓ Отправить</button><button class="btn-blue" disabled>✏ Ред.</button><button class="btn-muted" disabled>✕</button>`
+    else if (c.state === 'editing') actionsHtml = `<button class="btn-green" onclick="saveEdit('${id}','question')">✓ Отправить</button><button class="btn-ghost" onclick="cancelEdit('${id}','question')">Отмена</button><button class="btn-muted" onclick="skip('${id}','question')">✕</button>`
+    else actionsHtml = `<button class="btn-green" onclick="approve('${id}','question')">✓ Отправить</button><button class="btn-blue" onclick="startEdit('${id}','question')">✏ Ред.</button><button class="btn-muted" onclick="skip('${id}','question')">✕</button>`
 
     el.className = `card${c.state === 'done' ? ' done' : ''}`
     el.innerHTML = `
       <div class="card-header">
         <div class="card-meta"><div class="product-name">${escHtml(product)}</div><div class="card-date">${fmtDate(c.q.createdDate)}</div></div>
-        <span style="font-size:18px">❓</span>
+        <span style="font-size:20px">❓</span>
       </div>
       <div class="section-label">Вопрос</div>
       <div class="review-text">${escHtml(text)}</div>
       <div class="reply-block"><div class="section-label">Предложенный ответ</div>${replyHtml}</div>
-      <div class="card-actions">${actionsHtml}</div>
-    `
+      <div class="card-actions">${actionsHtml}</div>`
   }
 
-  // ── Template apply ─────────────────────────────────────────────────────────
-  function applyTpl(sel, reviewId) {
-    if (!sel.value) return
-    const ta = document.getElementById(`ta-${reviewId}`)
-    if (ta) ta.value = sel.value
-    sel.value = ''
-  }
+  function applyTpl(sel, id) { const ta = document.getElementById(`ta-${id}`); if (ta && sel.value) { ta.value = sel.value; sel.value = '' } }
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  async function approve(id, type) {
-    const isReview = type === 'review'
-    const c = isReview ? rCards.get(id) : qCards.get(id)
-
-    const res = await fetch(isReview ? API.reply : API.replyQuestion, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, text: c.replyText })
-    })
-
+  async function approve(id, type, auto = false) {
+    const isR = type === 'review'
+    const c = isR ? rCards.get(id) : qCards.get(id)
+    const endpoint = isR ? API.reply : API.replyQuestion
+    const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, text: c.replyText }) })
     if (res.ok) {
-      c.state = 'done'
-      isReview ? renderReviewCard(id) : renderQuestionCard(id)
-      toast('Ответ отправлен на Wildberries')
+      c.state = 'done'; c.auto = auto
+      addToHistory({
+        type,
+        auto,
+        product: isR ? (c.review.productDetails?.productName || '') : (c.q.productDetails?.productName || ''),
+        stars: isR ? (c.review.productValuation || 0) : 0,
+        reviewText: isR ? (c.review.text || '') : (c.q.text || ''),
+        replyText: c.replyText
+      })
+      isR ? renderReviewCard(id) : renderQuestionCard(id)
+      if (!auto) toast('Ответ отправлен на Wildberries')
     } else {
       const err = await res.json().catch(() => ({}))
       toast(err.error || 'Ошибка отправки', 'error')
@@ -516,124 +553,127 @@
     const c = type === 'review' ? rCards.get(id) : qCards.get(id)
     c.state = 'editing'
     type === 'review' ? renderReviewCard(id) : renderQuestionCard(id)
-    setTimeout(() => {
-      const ta = document.getElementById(type === 'review' ? `ta-${id}` : `qta-${id}`)
-      if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length) }
-    }, 50)
+    setTimeout(() => { const ta = document.getElementById(type==='review'?`ta-${id}`:`qta-${id}`); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length) } }, 50)
   }
 
-  function cancelEdit(id, type) {
-    const c = type === 'review' ? rCards.get(id) : qCards.get(id)
-    c.state = 'ready'
-    type === 'review' ? renderReviewCard(id) : renderQuestionCard(id)
-  }
+  function cancelEdit(id, type) { const c = type==='review'?rCards.get(id):qCards.get(id); c.state='ready'; type==='review'?renderReviewCard(id):renderQuestionCard(id) }
 
   async function saveEdit(id, type) {
-    const taId = type === 'review' ? `ta-${id}` : `qta-${id}`
-    const ta = document.getElementById(taId)
+    const ta = document.getElementById(type==='review'?`ta-${id}`:`qta-${id}`)
     if (!ta) return
     const text = ta.value.trim()
     if (!text) return toast('Ответ не может быть пустым', 'error')
-    const c = type === 'review' ? rCards.get(id) : qCards.get(id)
+    const c = type==='review'?rCards.get(id):qCards.get(id)
     c.replyText = text
     await approve(id, type)
   }
 
-  function skip(id, type) {
-    const c = type === 'review' ? rCards.get(id) : qCards.get(id)
-    c.state = 'done'
-    type === 'review' ? renderReviewCard(id) : renderQuestionCard(id)
-  }
+  function skip(id, type) { const c = type==='review'?rCards.get(id):qCards.get(id); c.state='done'; type==='review'?renderReviewCard(id):renderQuestionCard(id) }
 
   async function approveAll() {
-    const ready = [...rCards.entries()].filter(([, c]) => c.state === 'ready')
+    const ready = [...rCards.entries()].filter(([,c]) => c.state === 'ready')
     if (!ready.length) return
     const btn = document.getElementById('btn-approve-all')
     btn.disabled = true
-    for (const [id] of ready) {
-      await approve(id, 'review')
-      await sleep(400)
-    }
-    btn.disabled = false
-    updateApproveAllBtn()
+    for (const [id] of ready) { await approve(id, 'review'); await sleep(400) }
+    btn.disabled = false; updateApproveAllBtn()
+  }
+
+  // ── Auto-reply ─────────────────────────────────────────────────────────────
+  async function tryAutoReply(review) {
+    if (!document.getElementById('auto-reply-toggle').checked) return false
+    if (review.text && review.text.trim()) return false
+    const tpl = getBestTemplate(review.productValuation || 0)
+    if (!tpl) return false
+    const id = review.id
+    rCards.set(id, { review, replyText: tpl.text, state: 'generating', auto: true })
+    await approve(id, 'review', true)
+    return true
   }
 
   // ── Generate ───────────────────────────────────────────────────────────────
   async function generateReview(id) {
     const c = rCards.get(id)
     try {
-      const res = await fetch(API.generate, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'review', review: c.review, examples: styleExamples })
-      })
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка')
-      const data = await res.json()
-      c.replyText = data.reply
-      c.state = 'ready'
-    } catch (e) {
-      c.replyText = '— не удалось сгенерировать ответ'
-      c.state = 'ready'
-    }
+      const res = await fetch(API.generate, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'review', review: c.review, examples: styleExamples }) })
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || 'Ошибка')
+      c.replyText = (await res.json()).reply; c.state = 'ready'
+    } catch { c.replyText = '— не удалось сгенерировать ответ'; c.state = 'ready' }
     renderReviewCard(id)
   }
 
   async function generateQuestion(id) {
     const c = qCards.get(id)
     try {
-      const res = await fetch(API.generate, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'question', question: c.q })
-      })
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка')
-      const data = await res.json()
-      c.replyText = data.reply
-      c.state = 'ready'
-    } catch (e) {
-      c.replyText = '— не удалось сгенерировать ответ'
-      c.state = 'ready'
-    }
+      const res = await fetch(API.generate, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'question', question: c.q }) })
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || 'Ошибка')
+      c.replyText = (await res.json()).reply; c.state = 'ready'
+    } catch { c.replyText = '— не удалось сгенерировать ответ'; c.state = 'ready' }
     renderQuestionCard(id)
   }
 
   // ── Load reviews ───────────────────────────────────────────────────────────
-  async function loadReviews() {
+  async function loadReviews(append = false) {
     const list = document.getElementById('reviews-list')
-    rCards.clear()
-    list.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка отзывов…</p></div>`
+    if (!append) { rCards.clear(); reviewsOffset = 0; list.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка отзывов…</p></div>` }
 
     try {
-      let reviews = getCache(CACHE_KEY)
+      let reviews = append ? null : getCache('wb_reviews')
       if (!reviews) {
-        const res = await fetch(API.reviews)
-        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`)
+        const res = await fetch(`${API.reviews}?skip=${reviewsOffset}`)
+        if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || `HTTP ${res.status}`)
         reviews = await res.json()
-        setCache(CACHE_KEY, reviews)
+        if (!append) setCache('wb_reviews', reviews)
       }
 
-      document.getElementById('cnt-reviews').textContent = reviews.length
+      if (!append) list.innerHTML = ''
+      document.getElementById('cnt-reviews').textContent = rCards.size + reviews.length
 
-      if (reviews.length === 0) {
-        list.innerHTML = `<div class="state-box"><div class="icon">🎉</div><p>Неотвеченных отзывов нет</p></div>`
-        return
-      }
+      let autoCount = 0
+      const manual = []
 
-      list.innerHTML = reviews.map(r => `<div class="card" id="card-${r.id}"></div>`).join('')
       for (const r of reviews) {
-        rCards.set(r.id, { review: r, replyText: '', state: 'generating' })
-        renderReviewCard(r.id)
+        const wasAuto = await tryAutoReply(r)
+        if (wasAuto) { autoCount++; continue }
+        manual.push(r)
       }
+
+      if (manual.length === 0 && rCards.size === 0) {
+        list.innerHTML = `<div class="state-box"><div class="icon">🎉</div><p>Неотвеченных отзывов нет</p></div>`
+      } else {
+        for (const r of manual) {
+          const div = document.createElement('div')
+          div.className = 'card'; div.id = `card-${r.id}`
+          list.appendChild(div)
+          rCards.set(r.id, { review: r, replyText: '', state: 'generating' })
+          renderReviewCard(r.id)
+        }
+      }
+
+      reviewsOffset += reviews.length
       updateFilterCounts()
 
-      for (const r of reviews) {
+      const loadMoreEl = document.getElementById('load-more')
+      loadMoreEl.style.display = reviews.length === 50 ? '' : 'none'
+
+      if (autoCount > 0) toast(`Автоматически отправлено ${autoCount} ответов на отзывы без текста`)
+
+      for (const r of manual) {
         await generateReview(r.id)
         await sleep(400)
       }
 
     } catch (e) {
-      list.innerHTML = `<div class="state-box"><div class="icon">⚠️</div><p>${escHtml(e.message)}</p></div>`
+      if (!append) list.innerHTML = `<div class="state-box"><div class="icon">⚠️</div><p>${escHtml(e.message)}</p></div>`
+      else toast(e.message, 'error')
     }
+  }
+
+  async function loadMoreReviews() {
+    const btn = document.getElementById('btn-load-more')
+    btn.disabled = true; btn.textContent = 'Загружаю…'
+    await loadReviews(true)
+    btn.disabled = false; btn.textContent = 'Загрузить ещё'
   }
 
   // ── Load questions ─────────────────────────────────────────────────────────
@@ -641,63 +681,34 @@
     const list = document.getElementById('questions-list')
     qCards.clear()
     list.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка вопросов…</p></div>`
-
     try {
-      let questions = getCache(CACHE_Q)
-      if (!questions) {
-        const res = await fetch(API.questions)
-        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`)
-        questions = await res.json()
-        setCache(CACHE_Q, questions)
-      }
-
+      let questions = getCache('wb_questions')
+      if (!questions) { const res = await fetch(API.questions); if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error||`HTTP ${res.status}`); questions=await res.json(); setCache('wb_questions',questions) }
       document.getElementById('cnt-questions').textContent = questions.length
-
-      if (questions.length === 0) {
-        list.innerHTML = `<div class="state-box"><div class="icon">✅</div><p>Неотвеченных вопросов нет</p></div>`
-        return
-      }
-
-      list.innerHTML = questions.map(q => `<div class="card" id="qcard-${q.id}"></div>`).join('')
-      for (const q of questions) {
-        qCards.set(q.id, { q, replyText: '', state: 'generating' })
-        renderQuestionCard(q.id)
-      }
-
-      for (const q of questions) {
-        await generateQuestion(q.id)
-        await sleep(400)
-      }
-
-    } catch (e) {
-      list.innerHTML = `<div class="state-box"><div class="icon">⚠️</div><p>${escHtml(e.message)}</p></div>`
-    }
+      if (questions.length === 0) { list.innerHTML=`<div class="state-box"><div class="icon">✅</div><p>Неотвеченных вопросов нет</p></div>`; return }
+      list.innerHTML = questions.map(q=>`<div class="card" id="qcard-${q.id}"></div>`).join('')
+      for (const q of questions) { qCards.set(q.id,{q,replyText:'',state:'generating'}); renderQuestionCard(q.id) }
+      for (const q of questions) { await generateQuestion(q.id); await sleep(400) }
+    } catch (e) { list.innerHTML=`<div class="state-box"><div class="icon">⚠️</div><p>${escHtml(e.message)}</p></div>` }
   }
 
   // ── Load styles ────────────────────────────────────────────────────────────
   async function loadStyles() {
     const btn = document.getElementById('btn-style')
-    btn.disabled = true
-    btn.textContent = '⏳ Загружаю…'
+    btn.disabled = true; btn.textContent = '⏳'
     try {
       const res = await fetch(API.styles)
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`)
-      const data = await res.json()
-      styleExamples = data.examples || []
-      btn.textContent = `✓ Стиль (${styleExamples.length})`
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error||`HTTP ${res.status}`)
+      const data = await res.json(); styleExamples = data.examples||[]
+      btn.textContent = `✓(${styleExamples.length})`
       toast(`Загружено ${styleExamples.length} примеров стиля`)
-    } catch (e) {
-      btn.disabled = false
-      btn.textContent = '🎨 Стиль'
-      toast(e.message, 'error')
-    }
+    } catch (e) { btn.disabled=false; btn.textContent='🎨'; toast(e.message,'error') }
   }
 
   // ── Load all ───────────────────────────────────────────────────────────────
   async function loadAll() {
     const btn = document.getElementById('btn-refresh')
-    sessionStorage.removeItem(CACHE_KEY)
-    sessionStorage.removeItem(CACHE_Q)
+    sessionStorage.removeItem('wb_reviews'); sessionStorage.removeItem('wb_questions')
     startCountdown(btn, '↻ Обновить')
     await Promise.all([loadReviews(), loadQuestions()])
   }
@@ -705,47 +716,36 @@
   // ── Analysis ───────────────────────────────────────────────────────────────
   async function runAnalysis() {
     const nmId = document.getElementById('analysis-nm').value.trim()
-    const btn  = document.getElementById('btn-analyze')
-    const result = document.getElementById('analysis-result')
-    const meta   = document.getElementById('analysis-meta')
-    const body   = document.getElementById('analysis-body')
-
-    btn.disabled = true
-    btn.textContent = '⏳ Анализирую…'
-    result.classList.remove('show')
-
+    const btn = document.getElementById('btn-analyze')
+    btn.disabled = true; btn.textContent = '⏳ Анализирую…'
+    document.getElementById('analysis-result').classList.remove('show')
     try {
-      const res = await fetch(API.analyze, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nmId: nmId || null })
-      })
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`)
+      const res = await fetch(API.analyze, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nmId:nmId||null}) })
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error||`HTTP ${res.status}`)
       const data = await res.json()
-
-      meta.innerHTML = `<strong>${escHtml(data.product)}</strong> · ${data.count} отзывов · средняя оценка ${data.avgRating} ⭐`
-      body.innerHTML = renderMarkdown(data.analysis)
-      result.classList.add('show')
-
-    } catch (e) {
-      toast(e.message, 'error')
-    } finally {
-      btn.disabled = false
-      btn.textContent = 'Анализировать'
-    }
+      document.getElementById('analysis-meta').innerHTML = `<strong>${escHtml(data.product)}</strong> · ${data.count} отзывов · средняя оценка ${data.avgRating} ⭐`
+      document.getElementById('analysis-body').innerHTML = renderMarkdown(data.analysis)
+      document.getElementById('analysis-result').classList.add('show')
+    } catch (e) { toast(e.message,'error') }
+    finally { btn.disabled=false; btn.textContent='Анализировать' }
   }
 
   function renderMarkdown(text) {
     return text
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
-      .replace(/\n\n/g, '<br>')
+      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+      .replace(/^- (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>[^<]+<\/li>\n?)+/g,m=>`<ul>${m}</ul>`)
+      .replace(/\n\n/g,'<br>')
+  }
+
+  // ── PWA ────────────────────────────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
+  updateHistoryCount()
   Promise.all([loadReviews(), loadQuestions()])
 </script>
-
 </body>
 </html>

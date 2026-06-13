@@ -1,0 +1,17 @@
+{
+  "name": "WB Отзывы",
+  "short_name": "WB Отзывы",
+  "description": "Управление отзывами и вопросами Wildberries",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%23cb11ab'/><text x='96' y='130' font-size='100' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>WB</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
