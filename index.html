@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WB Отзывы</title>
+  <style>
+    :root {
+      --bg:      #0f1117;
+      --surface: #1a1d27;
+      --border:  #2a2d3a;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --green:   #10b981;
+      --red:     #ef4444;
+      --blue:    #3b82f6;
+      --yellow:  #f59e0b;
+      --purple:  #8b5cf6;
+      --radius:  12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .logo-badge {
+      background: #cb11ab;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat strong { color: var(--text); }
+
+    /* ── Buttons ── */
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 8px 14px;
+      transition: opacity 0.15s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover:not(:disabled) { opacity: 0.85; }
+    button:active:not(:disabled) { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-green  { background: var(--green);  color: #fff; }
+    .btn-blue   { background: var(--blue);   color: #fff; }
+    .btn-red    { background: var(--red);    color: #fff; }
+    .btn-muted  { background: #2a2d3a; color: var(--muted); }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* ── Empty / loading / error states ── */
+    .state-box {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+    }
+
+    .state-box .icon { font-size: 40px; margin-bottom: 12px; }
+    .state-box p { font-size: 15px; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Review card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .card.done {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .product-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .card-date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stars {
+      display: flex;
+      gap: 2px;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .star-filled { color: var(--yellow); }
+    .star-empty  { color: var(--border); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .review-text {
+      background: #12141c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .reply-block { margin-bottom: 14px; }
+
+    .reply-text {
+      background: #12141c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      position: relative;
+      min-height: 52px;
+    }
+
+    .reply-text.generating {
+      color: var(--muted);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .reply-text.generating::before {
+      content: '';
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .reply-textarea {
+      width: 100%;
+      background: #12141c;
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+    }
+
+    .reply-textarea:focus { border-color: var(--purple); }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideIn 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success { border-color: var(--green); }
+    .toast.error   { border-color: var(--red); }
+
+    @keyframes slideIn {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-badge">WB</span>
+    Ответы на отзывы
+  </div>
+  <div class="header-actions">
+    <div class="stats" id="stats"></div>
+    <button class="btn-ghost" id="btn-refresh" onclick="load()">
+      ↻ Обновить
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <div class="state-box">
+    <div class="spinner"></div>
+    <p>Загрузка отзывов…</p>
+  </div>
+</main>
+
+<div id="toast-container"></div>
+
+<script>
+  const API = {
+    reviews:  '/.netlify/functions/reviews',
+    reply:    '/.netlify/functions/reply',
+    generate: '/.netlify/functions/generate',
+  }
+
+  // reviewId → { review, replyText, state: 'generating'|'ready'|'editing'|'done' }
+  const cards = new Map()
+
+  function stars(n) {
+    return Array.from({ length: 5 }, (_, i) =>
+      `<span class="${i < n ? 'star-filled' : 'star-empty'}">★</span>`
+    ).join('')
+  }
+
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+
+  function toast(msg, type = 'success') {
+    const el = document.createElement('div')
+    el.className = `toast ${type}`
+    el.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg
+    document.getElementById('toast-container').appendChild(el)
+    setTimeout(() => el.remove(), 3500)
+  }
+
+  function updateStats() {
+    const total  = cards.size
+    const done   = [...cards.values()].filter(c => c.state === 'done').length
+    const active = total - done
+    document.getElementById('stats').innerHTML =
+      `<span>Неотвеченных: <strong>${active}</strong></span>` +
+      (done ? `<span>Отправлено: <strong>${done}</strong></span>` : '')
+  }
+
+  function renderCard(id) {
+    const c   = cards.get(id)
+    const el  = document.getElementById(`card-${id}`)
+    if (!el) return
+
+    const product = c.review.productDetails?.productName || 'Неизвестный товар'
+    const text    = c.review.text || '(без текста)'
+    const date    = formatDate(c.review.createdDate)
+    const n       = c.review.productValuation || 0
+
+    let replyHtml = ''
+    if (c.state === 'generating') {
+      replyHtml = `<div class="reply-text generating">Генерирую ответ…</div>`
+    } else if (c.state === 'editing') {
+      replyHtml = `<textarea class="reply-textarea" id="ta-${id}">${c.replyText}</textarea>`
+    } else {
+      replyHtml = `<div class="reply-text">${escHtml(c.replyText)}</div>`
+    }
+
+    let actionsHtml = ''
+    if (c.state === 'done') {
+      actionsHtml = `<span style="color:var(--green);font-size:13px">✓ Ответ отправлен</span>`
+    } else if (c.state === 'generating') {
+      actionsHtml = `
+        <button class="btn-green"  disabled>✓ Отправить</button>
+        <button class="btn-blue"   disabled>✏ Редактировать</button>
+        <button class="btn-muted"  disabled>✕ Пропустить</button>
+      `
+    } else if (c.state === 'editing') {
+      actionsHtml = `
+        <button class="btn-green" onclick="saveEdit('${id}')">✓ Отправить</button>
+        <button class="btn-ghost" onclick="cancelEdit('${id}')">Отмена</button>
+        <button class="btn-muted" onclick="skip('${id}')">✕ Пропустить</button>
+      `
+    } else {
+      actionsHtml = `
+        <button class="btn-green" onclick="approve('${id}')">✓ Отправить</button>
+        <button class="btn-blue"  onclick="startEdit('${id}')">✏ Редактировать</button>
+        <button class="btn-muted" onclick="skip('${id}')">✕ Пропустить</button>
+      `
+    }
+
+    el.className = `card${c.state === 'done' ? ' done' : ''}`
+    el.innerHTML = `
+      <div class="card-header">
+        <div class="card-meta">
+          <div class="product-name">${escHtml(product)}</div>
+          <div class="card-date">${date}</div>
+        </div>
+        <div class="stars">${stars(n)}</div>
+      </div>
+      <div class="section-label">Отзыв</div>
+      <div class="review-text">${escHtml(text)}</div>
+      <div class="reply-block">
+        <div class="section-label">Предложенный ответ</div>
+        ${replyHtml}
+      </div>
+      <div class="card-actions">${actionsHtml}</div>
+    `
+
+    updateStats()
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+
+  async function approve(id) {
+    const c = cards.get(id)
+    const res = await fetch(API.reply, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, text: c.replyText })
+    })
+
+    if (res.ok) {
+      c.state = 'done'
+      renderCard(id)
+      toast('Ответ отправлен на Wildberries')
+    } else {
+      const err = await res.json().catch(() => ({}))
+      toast(err.error || 'Ошибка отправки', 'error')
+    }
+  }
+
+  function startEdit(id) {
+    cards.get(id).state = 'editing'
+    renderCard(id)
+    setTimeout(() => {
+      const ta = document.getElementById(`ta-${id}`)
+      if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length) }
+    }, 50)
+  }
+
+  function cancelEdit(id) {
+    cards.get(id).state = 'ready'
+    renderCard(id)
+  }
+
+  async function saveEdit(id) {
+    const ta = document.getElementById(`ta-${id}`)
+    if (!ta) return
+    const text = ta.value.trim()
+    if (!text) return toast('Ответ не может быть пустым', 'error')
+
+    cards.get(id).replyText = text
+    await approve(id)
+  }
+
+  function skip(id) {
+    cards.get(id).state = 'done'
+    renderCard(id)
+  }
+
+  async function generateOne(id) {
+    const c = cards.get(id)
+    try {
+      const res = await fetch(API.generate, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review: c.review })
+      })
+
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка генерации')
+
+      const data = await res.json()
+      c.replyText = data.reply
+      c.state = 'ready'
+    } catch (e) {
+      c.replyText = '— не удалось сгенерировать ответ'
+      c.state = 'ready'
+      console.warn('[generate]', e.message)
+    }
+    renderCard(id)
+  }
+
+  async function load() {
+    const btn = document.getElementById('btn-refresh')
+    btn.disabled = true
+    btn.textContent = '↻ Загрузка…'
+    document.getElementById('stats').innerHTML = ''
+
+    const main = document.getElementById('main')
+    main.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Загрузка отзывов…</p></div>`
+    cards.clear()
+
+    try {
+      const res = await fetch(API.reviews)
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `HTTP ${res.status}`)
+      }
+
+      const reviews = await res.json()
+
+      if (reviews.length === 0) {
+        main.innerHTML = `<div class="state-box"><div class="icon">🎉</div><p>Неотвеченных отзывов нет</p></div>`
+        updateStats()
+        return
+      }
+
+      // Рендерим все карточки сразу (состояние generating)
+      main.innerHTML = reviews.map(r => `<div class="card" id="card-${r.id}"></div>`).join('')
+
+      for (const r of reviews) {
+        cards.set(r.id, { review: r, replyText: '', state: 'generating' })
+        renderCard(r.id)
+      }
+
+      updateStats()
+
+      // Генерируем ответы последовательно с паузой (rate limit Anthropic)
+      for (const r of reviews) {
+        await generateOne(r.id)
+        await new Promise(res => setTimeout(res, 600))
+      }
+
+    } catch (e) {
+      main.innerHTML = `
+        <div class="state-box">
+          <div class="icon">⚠️</div>
+          <p>${e.message}</p>
+        </div>
+      `
+    } finally {
+      btn.disabled = false
+      btn.textContent = '↻ Обновить'
+    }
+  }
+
+  load()
+</script>
+
+</body>
+</html>
