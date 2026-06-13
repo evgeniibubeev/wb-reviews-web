@@ -665,14 +665,17 @@
           reviews = cacheInfo.data  // кэш свежий — используем
         } else {
           // Пробуем загрузить с WB
-          const res = await fetch(`${API.reviews}?skip=${reviewsOffset}`)
-          if (!res.ok) {
-            // Ошибка — показываем старый кэш если есть
+          let res = null
+          try { res = await fetch(`${API.reviews}?skip=${reviewsOffset}`) } catch {}
+          if (!res || !res.ok) {
+            // Ошибка сети или rate limit — показываем старый кэш если есть
             if (cacheInfo?.data) {
               reviews = cacheInfo.data
               const ago = fmtAgo(cacheInfo.ts)
-              list.innerHTML = `<div style="background:#1a1d27;border:1px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#f59e0b">⚠️ Rate limit WB — показаны данные ${ago}. Новые загрузятся через минуту.</div>`
+              const reason = !res ? 'Нет соединения с WB' : 'Rate limit WB'
+              list.innerHTML = `<div style="background:#1a1d27;border:1px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#f59e0b">⚠️ ${reason} — показаны данные ${ago}. Обновите через минуту.</div>`
             } else {
+              if (!res) throw new Error('Нет соединения с WB')
               throw new Error((await res.json().catch(()=>({}))).error || `HTTP ${res.status}`)
             }
           } else {
