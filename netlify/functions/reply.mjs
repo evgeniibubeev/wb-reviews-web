@@ -21,5 +21,8 @@ export const handler = async (event) => {
   const ok = res.status === 204 || res.ok
   const body = res.status === 204 ? '{}' : await res.text()
 
-  return { statusCode: ok ? 200 : res.status, body }
+  if (!ok) console.error('[reply] WB error', res.status, body, '| id:', id)
+  else console.log('[reply] OK', res.status, '| id:', id)
+
+  return { statusCode: ok ? 200 : res.status, body: ok ? body : JSON.stringify({ error: body }) }
 }
