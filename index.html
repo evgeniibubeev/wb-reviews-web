@@ -506,6 +506,38 @@
     renderCard(id)
   }
 
+  const CACHE_KEY = 'wb_reviews_cache'
+  const CACHE_TTL = 65_000  // 65 секунд
+
+  function getCachedReviews() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY)
+      if (!raw) return null
+      const { ts, reviews } = JSON.parse(raw)
+      if (Date.now() - ts < CACHE_TTL) return reviews
+    } catch {}
+    return null
+  }
+
+  function setCachedReviews(reviews) {
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), reviews })) } catch {}
+  }
+
+  function startRefreshCountdown(btn) {
+    let sec = Math.ceil(CACHE_TTL / 1000)
+    btn.disabled = true
+    const timer = setInterval(() => {
+      sec--
+      if (sec <= 0) {
+        clearInterval(timer)
+        btn.disabled = false
+        btn.textContent = '↻ Обновить'
+      } else {
+        btn.textContent = `↻ Обновить (${sec}с)`
+      }
+    }, 1000)
+  }
+
   async function load() {
     const btn = document.getElementById('btn-refresh')
     btn.disabled = true
@@ -517,13 +549,18 @@
     cards.clear()
 
     try {
-      const res = await fetch(API.reviews)
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || `HTTP ${res.status}`)
-      }
+      let reviews = getCachedReviews()
+      let fromCache = !!reviews
 
-      const reviews = await res.json()
+      if (!reviews) {
+        const res = await fetch(API.reviews)
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || `HTTP ${res.status}`)
+        }
+        reviews = await res.json()
+        setCachedReviews(reviews)
+      }
 
       if (reviews.length === 0) {
         main.innerHTML = `<div class="state-box"><div class="icon">🎉</div><p>Неотвеченных отзывов нет</p></div>`
@@ -555,8 +592,12 @@
         </div>
       `
     } finally {
-      btn.disabled = false
-      btn.textContent = '↻ Обновить'
+      if (!getCachedReviews()) {
+        btn.disabled = false
+        btn.textContent = '↻ Обновить'
+      } else {
+        startRefreshCountdown(btn)
+      }
     }
   }
 
