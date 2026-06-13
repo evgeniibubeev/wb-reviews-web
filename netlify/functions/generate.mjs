@@ -3,7 +3,11 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: '' }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY не задан' }) }
+  if (!apiKey) {
+    console.error('[generate] ANTHROPIC_API_KEY не задан')
+    return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY не задан' }) }
+  }
+  console.log('[generate] apiKey присутствует, длина:', apiKey.length)
 
   let review, examples = []
   try {
@@ -60,6 +64,7 @@ export const handler = async (event) => {
 
   if (!res.ok) {
     const err = await res.text()
+    console.error('[generate] Anthropic error', res.status, err)
     return { statusCode: res.status, body: JSON.stringify({ error: err }) }
   }
 
