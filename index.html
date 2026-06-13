@@ -295,9 +295,8 @@
   </div>
   <div class="header-actions">
     <div class="stats" id="stats"></div>
-    <button class="btn-ghost" id="btn-refresh" onclick="load()">
-      ↻ Обновить
-    </button>
+    <button class="btn-ghost" id="btn-style" onclick="loadStyles()">🎨 Загрузить стиль</button>
+    <button class="btn-ghost" id="btn-refresh" onclick="load()">↻ Обновить</button>
   </div>
 </header>
 
@@ -315,10 +314,34 @@
     reviews:  '/.netlify/functions/reviews',
     reply:    '/.netlify/functions/reply',
     generate: '/.netlify/functions/generate',
+    styles:   '/.netlify/functions/styles',
   }
 
   // reviewId → { review, replyText, state: 'generating'|'ready'|'editing'|'done' }
   const cards = new Map()
+  let styleExamples = []  // примеры стиля из отвеченных отзывов
+
+  async function loadStyles() {
+    const btn = document.getElementById('btn-style')
+    btn.disabled = true
+    btn.textContent = '⏳ Загружаю...'
+
+    try {
+      const res = await fetch(API.styles)
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || `HTTP ${res.status}`)
+      }
+      const data = await res.json()
+      styleExamples = data.examples || []
+      btn.textContent = `✓ Стиль (${styleExamples.length} прим.)`
+      toast(`Загружено ${styleExamples.length} примеров стиля`)
+    } catch (e) {
+      btn.disabled = false
+      btn.textContent = '🎨 Загрузить стиль'
+      toast(e.message, 'error')
+    }
+  }
 
   function stars(n) {
     return Array.from({ length: 5 }, (_, i) =>
@@ -467,7 +490,7 @@
       const res = await fetch(API.generate, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ review: c.review })
+        body: JSON.stringify({ review: c.review, examples: styleExamples })
       })
 
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка генерации')

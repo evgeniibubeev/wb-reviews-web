@@ -5,9 +5,9 @@ export const handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY не задан' }) }
 
-  let review
+  let review, examples = []
   try {
-    ;({ review } = JSON.parse(event.body))
+    ;({ review, examples = [] } = JSON.parse(event.body))
   } catch {
     return { statusCode: 400, body: JSON.stringify({ error: 'Неверный формат запроса' }) }
   }
@@ -15,6 +15,21 @@ export const handler = async (event) => {
   const stars   = review.productValuation || 0
   const text    = review.text || '(без текста)'
   const product = review.productDetails?.productName || 'товар'
+
+  // Подбираем примеры: сначала та же оценка, потом остальные
+  const sameStars = examples.filter(e => e.stars === stars)
+  const other     = examples.filter(e => e.stars !== stars)
+  const picked    = [...sameStars, ...other].slice(0, 5)
+
+  let examplesBlock = ''
+  if (picked.length > 0) {
+    examplesBlock =
+      `\nВот примеры уже отправленных ответов этого магазина — используй их как образец стиля:\n\n` +
+      picked.map((e, i) =>
+        `Пример ${i + 1} (${e.stars}⭐):\nОтзыв: "${e.reviewText}"\nОтвет: "${e.answerText}"`
+      ).join('\n\n') +
+      `\n\nТеперь напиши ответ в том же стиле:\n`
+  }
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -29,8 +44,9 @@ export const handler = async (event) => {
       messages: [{
         role: 'user',
         content:
-          `Ты менеджер магазина на Wildberries. Напиши ответ на отзыв покупателя.\n\n` +
-          `Товар: ${product}\nОценка: ${stars}/5 ⭐\nОтзыв: "${text}"\n\n` +
+          `Ты менеджер магазина на Wildberries. Напиши ответ на отзыв покупателя.` +
+          examplesBlock +
+          `\nТовар: ${product}\nОценка: ${stars}/5 ⭐\nОтзыв: "${text}"\n\n` +
           `Правила:\n` +
           `- Обращение на "Вы", вежливо и по делу\n` +
           `- 2–3 предложения, не больше\n` +
